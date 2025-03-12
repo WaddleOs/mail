@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mailjet E-Posta Gönder</title>
+</head>
+<body>
+    <h2>Mailjet ile E-Posta Gönder</h2>
+    <form id="emailForm">
+        <label>Kime:</label>
+        <input type="email" id="toEmail" required><br><br>
+        
+        <label>Konu:</label>
+        <input type="text" id="subject" required><br><br>
+
+        <label>Mesaj:</label><br>
+        <textarea id="message" rows="5" required></textarea><br><br>
+
+        <button type="submit">Gönder</button>
+    </form>
+
+    <script>
+        document.getElementById("emailForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const toEmail = document.getElementById("toEmail").value;
+            const subject = document.getElementById("subject").value;
+            const message = document.getElementById("message").value;
+
+            const API_KEY = "130f208dd5aae167bd2bab884e85e777";   // <-- Kendi API Key'inizi girin
+            const API_SECRET = "2ee6a3259bd18e5e430a8b9b2c4589fd"; // <-- Kendi Secret Key'inizi girin
+
+            fetch("https://api.mailjet.com/v3.1/send", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Basic " + btoa(API_KEY + ":" + API_SECRET),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    Messages: [{
+                        From: { Email: "senin@emailin.com", Name: "Sen" },
+                        To: [{ Email: toEmail, Name: "Alıcı" }],
+                        Subject: subject,
+                        TextPart: message
+                    }]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.Messages && data.Messages[0].Status === "success") {
+                    alert("E-posta başarıyla gönderildi!");
+                } else {
+                    alert("Hata oluştu: " + JSON.stringify(data));
+                }
+            })
+            .catch(error => console.error("Hata:", error));
+        });
+    </script>
+</body>
+</html>
